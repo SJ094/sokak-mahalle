@@ -303,12 +303,23 @@
       }
     }
 
+    // Sesli konuşma fonksiyonu
+    function sesliSoyle(metin) {
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(metin);
+      utterance.lang = 'tr-TR';
+      utterance.rate = 0.9; // Konuşma hızı
+      utterance.pitch = 1; // Ses tonu
+      synth.speak(utterance);
+    }
+
     // Sesli arama
     function sesliAra() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       
       if (!SpeechRecognition) {
         gosterSonuc('error', '❌ Uyarı', 'Tarayıcınız ses tanımayı desteklemiyor. Lütfen Chrome veya Edge kullanın.');
+        sesliSoyle('Tarayıcınız ses tanımayı desteklemiyor.');
         return;
       }
 
@@ -336,13 +347,17 @@
         if (mahalle) {
           gosterSonuc('success', '✅ Bulundu!', 
             `<div class="sokak-name">${sesliBilgi}</div><div class="mahalle-name">${mahalle}</div>`);
+          // Sesli cevap - sadece mahalle adı
+          sesliSoyle(mahalle);
         } else {
           gosterSonuc('warning', '⚠️ Bulunamadı', 'Bu sokak veritabanında bulunamadı.');
+          sesliSoyle('Bulunamadı');
         }
       };
 
       recognition.onerror = () => {
         gosterSonuc('error', '❌ Hata', 'Ses tanıma hatası. Lütfen tekrar deneyin.');
+        sesliSoyle('Ses tanıma hatası. Lütfen tekrar deneyin.');
       };
 
       recognition.onend = () => {
