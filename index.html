@@ -7,7 +7,7 @@
 
 <style>
 body{
-  font-family:Arial, sans-serif;
+  font-family: Arial, sans-serif;
   background:#f3f4f6;
   padding:20px;
 }
@@ -45,7 +45,7 @@ button{
 <div class="container">
   <h2>Sokak → Mahalle Bulucu</h2>
 
-  <input id="sokakInput" placeholder="Yemeni veya Yemeni Sokak">
+  <input id="sokakInput" placeholder="Yemeni / Yemeni Sokak">
 
   <button onclick="ara()">🔍 Ara</button>
   <button onclick="sesliAra()">🎤 Sesli</button>
@@ -54,38 +54,54 @@ button{
 </div>
 
 <script>
-/* VERİ */
+/* ===============================
+   SOKAK VERİTABANI
+================================ */
 const sokaklar = {
   "yemeni sokak": "Ertuğrul Gazi Mahallesi",
   "çayır sokak": "Dumlupınar Mahallesi",
-  "sekbanlı sokak": "Ataevler Mahallesi"
+  "sekbanlı sokak": "Ataevler Mahallesi",
+  "göksun sokak": "İstasyon Mahallesi"
 };
 
-/* NORMALIZE */
-function normalize(t){
-  return t.toLowerCase()
-    .replace("sok.", "sokak")
-    .replace("sk", "sokak")
+/* ===============================
+   AKILLI NORMALIZE
+================================ */
+function normalize(text){
+  return text
+    .toLowerCase()
+    // soru kelimelerini temizle
+    .replace(/hangi|mahallede|nerede|nedir|söyle|söyler misin|acaba/g, "")
+    // sokak kısaltmaları
+    .replace(/sok\.?/g, "sokak")
+    .replace(/sk/g, "sokak")
+    // fazla boşluk
+    .replace(/\s+/g, " ")
     .trim();
 }
 
-/* ARAMA */
+/* ===============================
+   ARAMA
+================================ */
 function ara(){
   const input = document.getElementById("sokakInput").value;
   const q = normalize(input);
   const result = document.getElementById("result");
 
   if(!q){
-    result.innerHTML = "Lütfen sokak adı girin";
+    result.className="result warning";
+    result.innerHTML="Lütfen sokak adı girin";
     return;
   }
 
+  // 1️⃣ Tam eşleşme
   if(sokaklar[q]){
     sonucGoster(q, sokaklar[q]);
     konus(sokaklar[q]);
     return;
   }
 
+  // 2️⃣ Kısmi eşleşme (yemeni → yemeni sokak)
   const eslesen = Object.keys(sokaklar).find(s =>
     s.includes(q) || q.includes(s.replace(" sokak",""))
   );
@@ -95,38 +111,48 @@ function ara(){
     konus(sokaklar[eslesen]);
   }else{
     result.className="result warning";
-    result.innerHTML="Bulunamadı";
+    result.innerHTML="Bu sokak veritabanında bulunamadı";
   }
 }
 
-/* SONUÇ */
+/* ===============================
+   SONUÇ GÖSTER
+================================ */
 function sonucGoster(sokak, mahalle){
   const result = document.getElementById("result");
   result.className="result success";
   result.innerHTML = `<b>${sokak}</b><br>${mahalle}`;
 }
 
-/* SES */
-function konus(m){
+/* ===============================
+   SESLİ OKUMA
+================================ */
+function konus(metin){
   speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(m);
+  const u = new SpeechSynthesisUtterance(metin);
   u.lang="tr-TR";
   speechSynthesis.speak(u);
 }
 
-/* SESLİ */
+/* ===============================
+   SESLİ ARAMA
+================================ */
 function sesliAra(){
   const R = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!R){
-    alert("Tarayıcı desteklemiyor");
+    alert("Tarayıcı ses tanımayı desteklemiyor");
     return;
   }
+
   const r = new R();
   r.lang="tr-TR";
+
   r.onresult = e=>{
-    document.getElementById("sokakInput").value = e.results[0][0].transcript;
+    const metin = e.results[0][0].transcript;
+    document.getElementById("sokakInput").value = metin;
     ara();
   };
+
   r.start();
 }
 </script>
