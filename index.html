@@ -1,161 +1,479 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sokak Mahalle Bulucu</title>
-
-<style>
-body{
-  font-family: Arial, sans-serif;
-  background:#f3f4f6;
-  padding:20px;
-}
-.container{
-  max-width:500px;
-  margin:auto;
-  background:#fff;
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 5px 15px rgba(0,0,0,.1);
-}
-input{
-  width:100%;
-  padding:12px;
-  font-size:16px;
-}
-button{
-  margin-top:10px;
-  padding:10px;
-  font-size:16px;
-  cursor:pointer;
-}
-.result{
-  margin-top:20px;
-  padding:15px;
-  border-radius:8px;
-}
-.success{background:#e6fffa}
-.warning{background:#fff7ed}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sokak adını söyleyin veya yazın, mahallesini öğrenin">
+  <meta name="theme-color" content="#4F46E5">
+  <title>Sokak Mahalle Bulucu</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #F5F5F5 0%, #E8E8E8 50%, #FAFAFA 100%);
+      min-height: 100vh;
+      padding: 1rem;
+    }
+    
+    .container {
+      max-width: 500px;
+      margin: 2rem auto;
+    }
+    
+    .header {
+      background: white;
+      border-radius: 1rem 1rem 0 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 2rem;
+      text-align: center;
+      border-bottom: 3px solid #FF6000;
+    }
+    
+    .icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 1rem;
+      color: #FF6000;
+    }
+    
+    h1 {
+      font-size: 1.5rem;
+      color: #2D2D2D;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+    
+    .subtitle {
+      color: #6B7280;
+    }
+    
+    .main {
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 2rem;
+      border-left: 4px solid #FF6000;
+    }
+    
+    label {
+      display: block;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+    }
+    
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1.1rem;
+      border: 2px solid #E0E0E0;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s;
+      background: #FAFAFA;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #FF6000;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(255, 96, 0, 0.1);
+    }
+    
+    .buttons {
+      display: flex;
+      gap: 0.75rem;
+    }
+    
+    button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-search {
+      flex: 1;
+      background: #2D2D2D;
+      color: white;
+    }
+    
+    .btn-search:hover {
+      background: #1A1A1A;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .btn-voice {
+      background: #FF6000;
+      color: white;
+      padding: 0.75rem 1.25rem;
+    }
+    
+    .btn-voice:hover {
+      background: #E55500;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(255, 96, 0, 0.3);
+    }
+    
+    .btn-voice.listening {
+      background: #FF6000;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+    
+    .btn-clear {
+      background: #E5E7EB;
+      color: #374151;
+      padding: 0.75rem 1.25rem;
+    }
+    
+    .btn-clear:hover {
+      background: #D1D5DB;
+    }
+    
+    .result {
+      background: white;
+      border-radius: 0 0 1rem 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 2rem;
+      margin-top: 0.25rem;
+      border-left: 4px solid #FF6000;
+    }
+    
+    .result-box {
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      border: 2px solid;
+    }
+    
+    .result-success {
+      background: #F0FDF4;
+      border-color: #22C55E;
+    }
+    
+    .result-error {
+      background: #FEF2F2;
+      border-color: #EF4444;
+    }
+    
+    .result-warning {
+      background: #FFFBEB;
+      border-color: #FF6000;
+    }
+    
+    .result-listening {
+      background: #F0F9FF;
+      border-color: #FF6000;
+    }
+    
+    .result-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .success-title { color: #16A34A; }
+    .error-title { color: #DC2626; }
+    .warning-title { color: #FF6000; }
+    .listening-title { color: #FF6000; }
+    
+    .sokak-name {
+      color: #FF6000;
+      font-weight: 600;
+    }
+    
+    .mahalle-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2D2D2D;
+      margin-top: 0.5rem;
+    }
+    
+    .list {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 2rem;
+      margin-top: 1.5rem;
+      border-top: 3px solid #FF6000;
+    }
+    
+    .list-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #2D2D2D;
+      margin-bottom: 1rem;
+    }
+    
+    .list-item {
+      background: #FAFAFA;
+      border: 1px solid #E8E8E8;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      transition: all 0.3s;
+    }
+    
+    .list-item:hover {
+      border-color: #FF6000;
+      background: white;
+      transform: translateX(5px);
+    }
+    
+    .list-sokak {
+      font-weight: 600;
+      color: #FF6000;
+      text-transform: capitalize;
+    }
+    
+    .list-mahalle {
+      color: #6B7280;
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+    
+    .logo-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      text-align: right;
+      z-index: 1000;
+    }
+    
+    .logo-trendyol {
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      line-height: 1.2;
+      margin-bottom: 5px;
+    }
+    
+    .logo-trendyol-main {
+      color: #000;
+      font-size: 28px;
+      letter-spacing: -1px;
+    }
+    
+    .logo-trendyol-express {
+      color: #FF6000;
+      font-size: 24px;
+      letter-spacing: -0.5px;
+    }
+    
+    .logo-subtitle {
+      color: #6B7280;
+      font-size: 12px;
+      font-weight: normal;
+      margin-top: 2px;
+    }
+    
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
-
 <body>
+  <div class="container">
+    <!-- Başlık -->
+    <div class="header">
+      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      <h1>Sokak - Mahalle Bulucu</h1>
+      <p class="subtitle">Sokak adını girin, mahallesini öğrenin</p>
+    </div>
 
-<div class="container">
-  <h2>Sokak → Mahalle Bulucu</h2>
+    <!-- Ana Bölüm -->
+    <div class="main">
+      <label>Sokak Adı</label>
+      <input type="text" id="sokakInput" placeholder="Örn: Yemeni Sokak">
+      
+      <div class="buttons">
+        <button class="btn-search" onclick="ara()">🔍 Ara</button>
+        <button class="btn-voice" id="voiceBtn" onclick="sesliAra()">🎤</button>
+        <button class="btn-clear" onclick="temizle()">Temizle</button>
+      </div>
+    </div>
 
-  <input id="sokakInput" placeholder="Yemeni / Yemeni Sokak">
+    <!-- Sonuç -->
+    <div id="result" class="result hidden"></div>
 
-  <button onclick="ara()">🔍 Ara</button>
-  <button onclick="sesliAra()">🎤 Sesli</button>
+    <!-- Kayıtlı Sokaklar -->
+    <div class="list">
+      <div class="list-title">📍 Kayıtlı Sokaklar</div>
+      <div id="sokakListesi"></div>
+    </div>
+  </div>
 
-  <div id="result" class="result"></div>
-</div>
+  <!-- Logo - Sağ Alt -->
+  <div class="logo-container">
+    <div class="logo-trendyol">
+      <div class="logo-trendyol-main">trendyol</div>
+      <div class="logo-trendyol-express">express</div>
+    </div>
+    <div class="logo-subtitle">UZUN ŞUBE AI</div>
+  </div>
 
-<script>
-/* ===============================
-   SOKAK VERİTABANI
-================================ */
-const sokaklar = {
-  "yemeni sokak": "Ertuğrul Gazi Mahallesi",
-  "çayır sokak": "Dumlupınar Mahallesi",
-  "sekbanlı sokak": "Ataevler Mahallesi",
-  "göksun sokak": "İstasyon Mahallesi"
-};
+  <script>
+    // Sokak veritabanı
+    const sokaklar = {
+      'yemeni sokak': 'Ertuğrul Gazi Mahallesi',
+      'çayır sokak': 'Dumlupınar Mahallesi',
+      'sekbanlı sokak': 'Ataevler Mahallesi',
+      'göksun sokak': 'İstasyon Mahallesi',
+      'cami sokak': 'Tepecik Mahallesi'
+    };
 
-/* ===============================
-   AKILLI NORMALIZE
-================================ */
-function normalize(text){
-  return text
-    .toLowerCase()
-    // soru kelimelerini temizle
-    .replace(/hangi|mahallede|nerede|nedir|söyle|söyler misin|acaba/g, "")
-    // sokak kısaltmaları
-    .replace(/sok\.?/g, "sokak")
-    .replace(/sk/g, "sokak")
-    // fazla boşluk
-    .replace(/\s+/g, " ")
-    .trim();
-}
+    let dinliyor = false;
 
-/* ===============================
-   ARAMA
-================================ */
-function ara(){
-  const input = document.getElementById("sokakInput").value;
-  const q = normalize(input);
-  const result = document.getElementById("result");
+    // Enter tuşuyla arama
+    document.getElementById('sokakInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') ara();
+    });
 
-  if(!q){
-    result.className="result warning";
-    result.innerHTML="Lütfen sokak adı girin";
-    return;
-  }
+    // Arama fonksiyonu
+    function ara() {
+      const input = document.getElementById('sokakInput').value;
+      const aranan = input.toLowerCase().trim();
+      const resultDiv = document.getElementById('result');
 
-  // 1️⃣ Tam eşleşme
-  if(sokaklar[q]){
-    sonucGoster(q, sokaklar[q]);
-    konus(sokaklar[q]);
-    return;
-  }
+      if (!aranan) {
+        gosterSonuc('error', '❌ Uyarı', 'Lütfen bir sokak adı girin!');
+        return;
+      }
 
-  // 2️⃣ Kısmi eşleşme (yemeni → yemeni sokak)
-  const eslesen = Object.keys(sokaklar).find(s =>
-    s.includes(q) || q.includes(s.replace(" sokak",""))
-  );
+      const mahalle = sokaklar[aranan];
 
-  if(eslesen){
-    sonucGoster(eslesen, sokaklar[eslesen]);
-    konus(sokaklar[eslesen]);
-  }else{
-    result.className="result warning";
-    result.innerHTML="Bu sokak veritabanında bulunamadı";
-  }
-}
+      if (mahalle) {
+        gosterSonuc('success', '✅ Bulundu!', 
+          `<div class="sokak-name">${input}</div><div class="mahalle-name">${mahalle}</div>`);
+      } else {
+        gosterSonuc('warning', '⚠️ Bulunamadı', 'Bu sokak veritabanında bulunamadı.');
+      }
+    }
 
-/* ===============================
-   SONUÇ GÖSTER
-================================ */
-function sonucGoster(sokak, mahalle){
-  const result = document.getElementById("result");
-  result.className="result success";
-  result.innerHTML = `<b>${sokak}</b><br>${mahalle}`;
-}
+    // Sesli konuşma fonksiyonu
+    function sesliSoyle(metin) {
+      // Önceki konuşmaları iptal et
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(metin);
+      utterance.lang = 'tr-TR';
+      utterance.rate = 1.1; // Konuşma hızını artırdık
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      
+      // Hemen konuş
+      window.speechSynthesis.speak(utterance);
+    }
 
-/* ===============================
-   SESLİ OKUMA
-================================ */
-function konus(metin){
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(metin);
-  u.lang="tr-TR";
-  speechSynthesis.speak(u);
-}
+    // Sesli arama
+    function sesliAra() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        gosterSonuc('error', '❌ Uyarı', 'Tarayıcınız ses tanımayı desteklemiyor. Lütfen Chrome veya Edge kullanın.');
+        sesliSoyle('Tarayıcınız ses tanımayı desteklemiyor.');
+        return;
+      }
 
-/* ===============================
-   SESLİ ARAMA
-================================ */
-function sesliAra(){
-  const R = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!R){
-    alert("Tarayıcı ses tanımayı desteklemiyor");
-    return;
-  }
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'tr-TR';
+      recognition.continuous = false;
+      recognition.interimResults = false;
 
-  const r = new R();
-  r.lang="tr-TR";
+      const voiceBtn = document.getElementById('voiceBtn');
 
-  r.onresult = e=>{
-    const metin = e.results[0][0].transcript;
-    document.getElementById("sokakInput").value = metin;
-    ara();
-  };
+      recognition.onstart = () => {
+        dinliyor = true;
+        voiceBtn.classList.add('listening');
+        voiceBtn.textContent = '🔴 Dinliyor...';
+        gosterSonuc('listening', '🎤 Dinliyorum', 'Sokak adını söyleyin...');
+      };
 
-  r.start();
-}
-</script>
+      recognition.onresult = (event) => {
+        const sesliBilgi = event.results[0][0].transcript;
+        document.getElementById('sokakInput').value = sesliBilgi;
+        
+        const aranan = sesliBilgi.toLowerCase().trim();
+        const mahalle = sokaklar[aranan];
 
+        if (mahalle) {
+          gosterSonuc('success', '✅ Bulundu!', 
+            `<div class="sokak-name">${sesliBilgi}</div><div class="mahalle-name">${mahalle}</div>`);
+          // Sesli cevap - sadece mahalle adı
+          sesliSoyle(mahalle);
+        } else {
+          gosterSonuc('warning', '⚠️ Bulunamadı', 'Bu sokak veritabanında bulunamadı.');
+          sesliSoyle('Bulunamadı');
+        }
+      };
+
+      recognition.onerror = () => {
+        gosterSonuc('error', '❌ Hata', 'Ses tanıma hatası. Lütfen tekrar deneyin.');
+        sesliSoyle('Ses tanıma hatası. Lütfen tekrar deneyin.');
+      };
+
+      recognition.onend = () => {
+        dinliyor = false;
+        voiceBtn.classList.remove('listening');
+        voiceBtn.textContent = '🎤';
+      };
+
+      recognition.start();
+    }
+
+    // Temizle
+    function temizle() {
+      document.getElementById('sokakInput').value = '';
+      document.getElementById('result').classList.add('hidden');
+    }
+
+    // Sonuç göster
+    function gosterSonuc(tip, baslik, mesaj) {
+      const resultDiv = document.getElementById('result');
+      const tipClass = `result-${tip}`;
+      const titleClass = `${tip}-title`;
+
+      resultDiv.innerHTML = `
+        <div class="result-box ${tipClass}">
+          <div class="result-title ${titleClass}">${baslik}</div>
+          <div>${mesaj}</div>
+        </div>
+      `;
+      resultDiv.classList.remove('hidden');
+    }
+
+    // Sokak listesini oluştur
+    function sokakListesiOlustur() {
+      const liste = document.getElementById('sokakListesi');
+      Object.entries(sokaklar).forEach(([sokak, mahalle]) => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.innerHTML = `
+          <div class="list-sokak">${sokak}</div>
+          <div class="list-mahalle">${mahalle}</div>
+        `;
+        liste.appendChild(item);
+      });
+    }
+
+    // Sayfa yüklendiğinde listeyi oluştur
+    sokakListesiOlustur();
+  </script>
 </body>
 </html>
+
