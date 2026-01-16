@@ -1,55 +1,173 @@
 <script>
+/* ===============================
+   SOKAK VERİTABANI
+================================ */
+const sokaklar = {
+  "yemeni sokak": "Ertuğrul Gazi Mahallesi",
+  "çayır sokak": "Dumlupınar Mahallesi",
+  "sekbanlı sokak": "Ataevler Mahallesi",
+  "göksun sokak": "İstasyon Mahallesi",
+  "cami sokak": "Tepecik Mahallesi"
+};
+
+let dinliyor = false;
+
+/* ===============================
+   NORMALIZE (yemeni / yemeni sk / yemeni sok)
+================================ */
 function normalize(text) {
   return text
     .toLowerCase()
-    .replace("sok.", "sokak")
-    .replace("sk", "sokak")
-    .replace("sok", "sokak")
+    .replace(/sok\.?/g, "sokak")
+    .replace(/sk/g, "sokak")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
+/* ===============================
+   ENTER İLE ARAMA
+================================ */
+document.getElementById("sokakInput").addEventListener("keypress", function (e) {
+  if (e.key === "Enter") ara();
+});
+
+/* ===============================
+   ANA ARAMA FONKSİYONU
+================================ */
 function ara() {
-  const input = document.getElementById("sokakInput").value;
-  const aranan = normalize(input);
+  const inputEl = document.getElementById("sokakInput");
   const resultDiv = document.getElementById("result");
 
+  if (!inputEl || !resultDiv) return;
+
+  const girilen = inputEl.value;
+  const aranan = normalize(girilen);
+
   if (!aranan) {
-    gosterSonuc("error", "❌ Uyarı", "Lütfen bir sokak adı girin");
+    gosterSonuc("error", "❌ Uyarı", "Lütfen bir sokak adı girin!");
     return;
   }
 
-  // 1️⃣ Tam eşleşme
+  /* 1️⃣ TAM EŞLEŞME */
   if (sokaklar[aranan]) {
     gosterSonuc(
       "success",
       "✅ Bulundu!",
-      `<div class="sokak-name">${input}</div>
+      `<div class="sokak-name">${girilen}</div>
        <div class="mahalle-name">${sokaklar[aranan]}</div>`
     );
     sesliSoyle(sokaklar[aranan]);
     return;
   }
 
-  // 2️⃣ KISMİ EŞLEŞME (Yemeni → Yemeni Sokak)
-  const bulunanSokak = Object.keys(sokaklar).find(sokak =>
-    sokak.includes(aranan)
+  /* 2️⃣ KISMİ EŞLEŞME (yemeni → yemeni sokak) */
+  const eslesenSokak = Object.keys(sokaklar).find(sokak =>
+    sokak.includes(aranan) || aranan.includes(sokak.replace(" sokak", ""))
   );
 
-  if (bulunanSokak) {
+  if (eslesenSokak) {
     gosterSonuc(
       "success",
       "✅ Bulundu!",
-      `<div class="sokak-name">${bulunanSokak}</div>
-       <div class="mahalle-name">${sokaklar[bulunanSokak]}</div>`
+      `<div class="sokak-name">${eslesenSokak}</div>
+       <div class="mahalle-name">${sokaklar[eslesenSokak]}</div>`
     );
-    sesliSoyle(sokaklar[bulunanSokak]);
+    sesliSoyle(sokaklar[eslesenSokak]);
   } else {
     gosterSonuc(
       "warning",
       "⚠️ Bulunamadı",
-      "Bu sokak veritabanında bulunamadı"
+      "Bu sokak veritabanında bulunamadı."
     );
     sesliSoyle("Bulunamadı");
   }
 }
+
+/* ===============================
+   SESLİ OKUMA
+================================ */
+function sesliSoyle(metin) {
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(metin);
+  utterance.lang = "tr-TR";
+  utterance.rate = 1.1;
+  window.speechSynthesis.speak(utterance);
+}
+
+/* ===============================
+   SESLİ ARAMA
+================================ */
+function sesliAra() {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    gosterSonuc("error", "❌ Hata", "Tarayıcı ses tanımayı desteklemiyor.");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "tr-TR";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  const voiceBtn = document.getElementById("voiceBtn");
+
+  recognition.onstart = () => {
+    dinliyor = true;
+    voiceBtn.classList.add("listening");
+    voiceBtn.textContent = "🔴";
+    gosterSonuc("listening", "🎤 Dinliyorum", "Sokak adını söyleyin...");
+  };
+
+  recognition.onresult = (event) => {
+    const sesliMetin = event.results[0][0].transcript;
+    document.getElementById("sokakInput").value = sesliMetin;
+    ara();
+  };
+
+  recognition.onerror = () => {
+    gosterSonuc("error", "❌ Hata", "Ses tanıma hatası.");
+  };
+
+  recognition.onend = () => {
+    dinliyor = false;
+    voiceBtn.classList.remove("listening");
+    voiceBtn.textContent = "🎤";
+  };
+
+  recognition.start();
+}
+
+/* ===============================
+   TEMİZLE
+================================ */
+function temizle() {
+  document.getElementById("sokakInput").value = "";
+  document.getElementById("result").classList.add("hidden");
+}
+
+/* ===============================
+   SOKAK LİSTESİ
+================================ */
+function sokakListesiOlustur() {
+  const liste = document.getElementById("sokakListesi");
+  if (!liste) return;
+
+  liste.innerHTML = "";
+  Object.entries(sokaklar).forEach(([sokak, mahalle]) => {
+    const item = document.createElement("div");
+    item.className = "list-item";
+    item.innerHTML = `
+      <div class="list-sokak">${sokak}</div>
+      <div class="list-mahalle">${mahalle}</div>
+    `;
+    liste.appendChild(item);
+  });
+}
+
+/* ===============================
+   SAYFA YÜKLENİNCE
+================================ */
+sokakListesiOlustur();
 </script>
