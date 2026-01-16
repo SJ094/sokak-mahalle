@@ -1,140 +1,55 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sokak Mahalle Bulucu</title>
-
-<meta name="theme-color" content="#FF6000">
-<link rel="manifest" href="data:application/json,{
-  &quot;name&quot;:&quot;Sokak Mahalle Bulucu&quot;,
-  &quot;short_name&quot;:&quot;SokakBul&quot;,
-  &quot;start_url&quot;:&quot;.&quot;,
-  &quot;display&quot;:&quot;standalone&quot;,
-  &quot;background_color&quot;:&quot;#ffffff&quot;,
-  &quot;theme_color&quot;:&quot;#FF6000&quot;
-}">
-
-<style>
-:root {
-  --bg: #f5f5f5;
-  --card: #ffffff;
-  --text: #222;
-}
-.dark {
-  --bg:#111;
-  --card:#1e1e1e;
-  --text:#f5f5f5;
-}
-body {
-  margin:0;
-  font-family:system-ui;
-  background:var(--bg);
-  color:var(--text);
-}
-.container{
-  max-width:500px;
-  margin:2rem auto;
-}
-.card{
-  background:var(--card);
-  padding:1.5rem;
-  border-radius:1rem;
-  box-shadow:0 5px 15px rgba(0,0,0,.1);
-}
-input{
-  width:100%;
-  padding:1rem;
-  font-size:1.1rem;
-  border-radius:.5rem;
-  border:1px solid #ccc;
-}
-button{
-  margin-top:.5rem;
-  padding:.8rem;
-  border:none;
-  border-radius:.5rem;
-  cursor:pointer;
-}
-.primary{background:#FF6000;color:#fff;}
-.secondary{background:#333;color:#fff;}
-.result{margin-top:1rem;font-size:1.1rem;}
-.suggestion{color:#FF6000;font-size:.9rem;}
-</style>
-</head>
-
-<body>
-<div class="container">
-  <div class="card">
-    <h2>Sokak → Mahalle</h2>
-    <input id="input" placeholder="Yemeni Sokak">
-    <button class="primary" onclick="ara()">Ara</button>
-    <button class="secondary" onclick="sesliAra()">🎤</button>
-    <button onclick="dark()">🌙</button>
-    <div id="sonuc" class="result"></div>
-  </div>
-</div>
-
 <script>
-const db={
-  "yemeni sokak":"Ertuğrul Gazi Mahallesi",
-  "çayır sokak":"Dumlupınar Mahallesi",
-  "sekbanlı sokak":"Ataevler Mahallesi",
-  "göksun sokak":"İstasyon Mahallesi",
-  "cami sokak":"Tepecik Mahallesi"
-};
-
-function normalize(t){
-  return t.toLowerCase()
-    .replace("sk","sokak")
-    .replace("sok.","sokak")
+function normalize(text) {
+  return text
+    .toLowerCase()
+    .replace("sok.", "sokak")
+    .replace("sk", "sokak")
+    .replace("sok", "sokak")
     .trim();
 }
 
-function benzerAra(q){
-  return Object.keys(db).find(k=>k.includes(q) || q.includes(k));
-}
+function ara() {
+  const input = document.getElementById("sokakInput").value;
+  const aranan = normalize(input);
+  const resultDiv = document.getElementById("result");
 
-function ara(){
-  const raw=document.getElementById("input").value;
-  const q=normalize(raw);
-  const out=document.getElementById("sonuc");
+  if (!aranan) {
+    gosterSonuc("error", "❌ Uyarı", "Lütfen bir sokak adı girin");
+    return;
+  }
 
-  if(db[q]){
-    out.innerHTML=`✅ <b>${db[q]}</b>`;
-    speak(db[q]);
-  }else{
-    const sug=benzerAra(q);
-    out.innerHTML=sug
-      ? `❌ Bulunamadı<br><span class="suggestion">Bunu mu demek istediniz: ${sug}</span>`
-      : "❌ Bulunamadı";
+  // 1️⃣ Tam eşleşme
+  if (sokaklar[aranan]) {
+    gosterSonuc(
+      "success",
+      "✅ Bulundu!",
+      `<div class="sokak-name">${input}</div>
+       <div class="mahalle-name">${sokaklar[aranan]}</div>`
+    );
+    sesliSoyle(sokaklar[aranan]);
+    return;
+  }
+
+  // 2️⃣ KISMİ EŞLEŞME (Yemeni → Yemeni Sokak)
+  const bulunanSokak = Object.keys(sokaklar).find(sokak =>
+    sokak.includes(aranan)
+  );
+
+  if (bulunanSokak) {
+    gosterSonuc(
+      "success",
+      "✅ Bulundu!",
+      `<div class="sokak-name">${bulunanSokak}</div>
+       <div class="mahalle-name">${sokaklar[bulunanSokak]}</div>`
+    );
+    sesliSoyle(sokaklar[bulunanSokak]);
+  } else {
+    gosterSonuc(
+      "warning",
+      "⚠️ Bulunamadı",
+      "Bu sokak veritabanında bulunamadı"
+    );
+    sesliSoyle("Bulunamadı");
   }
 }
-
-function speak(t){
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(t);
-  u.lang="tr-TR";
-  speechSynthesis.speak(u);
-}
-
-function sesliAra(){
-  const r=new (window.SpeechRecognition||webkitSpeechRecognition)();
-  r.lang="tr-TR";
-  r.onresult=e=>{
-    document.getElementById("input").value=e.results[0][0].transcript;
-    ara();
-  };
-  r.start();
-}
-
-function dark(){
-  document.body.classList.toggle("dark");
-}
-
-if('serviceWorker'in navigator){
-  navigator.serviceWorker.register("data:text/javascript,self.addEventListener('fetch',e=>{})");
-}
 </script>
-</body>
-</html>
