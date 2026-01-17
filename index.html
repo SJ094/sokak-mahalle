@@ -3,11 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Sokak adını söyleyin, yazın veya fotoğraflayın - mahallesini öğrenin">
-  <meta name="theme-color" content="#FF6000">
-  <title>Sokak Mahalle Bulucu Pro</title>
-  
-  <!-- Tesseract.js OCR kütüphanesi -->
+  <title>Sokak Mahalle Bulucu</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js"></script>
   
   <style>
@@ -18,84 +14,59 @@
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #FF6000 0%, #FF8C42 50%, #FFA566 100%);
       min-height: 100vh;
       padding: 1rem;
-      position: relative;
-      overflow-x: hidden;
-    }
-    
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-      pointer-events: none;
     }
     
     .container {
       max-width: 600px;
       margin: 2rem auto;
-      position: relative;
-      z-index: 1;
     }
     
     .header {
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(10px);
+      background: white;
       border-radius: 1.5rem;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      padding: 2.5rem;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,0.5);
+      padding: 2rem;
       margin-bottom: 1.5rem;
     }
     
-    .icon-container {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 1.5rem;
-      background: linear-gradient(135deg, #FF6000 0%, #FF8C42 100%);
-      border-radius: 50%;
+    .header-content {
       display: flex;
       align-items: center;
-      justify-content: center;
-      box-shadow: 0 10px 30px rgba(255, 96, 0, 0.3);
+      gap: 1rem;
     }
     
-    .icon {
-      width: 45px;
-      height: 45px;
-      color: white;
+    .logo-team {
+      width: 80px;
+      height: 80px;
+      flex-shrink: 0;
+    }
+    
+    .header-text {
+      flex: 1;
+      text-align: left;
     }
     
     h1 {
-      font-size: 2rem;
-      background: linear-gradient(135deg, #2D2D2D 0%, #1A1A1A 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 0.5rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
+      font-size: 1.3rem;
+      color: #2D2D2D;
+      margin-bottom: 0.3rem;
+      font-weight: 700;
     }
     
     .subtitle {
       color: #6B7280;
-      font-size: 1rem;
+      font-size: 0.85rem;
     }
     
     .main {
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(10px);
+      background: white;
       border-radius: 1.5rem;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
       padding: 2rem;
-      border: 1px solid rgba(255,255,255,0.5);
       margin-bottom: 1.5rem;
     }
     
@@ -103,20 +74,17 @@
       display: block;
       font-weight: 600;
       color: #374151;
-      margin-bottom: 0.75rem;
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
     }
     
-    input {
+    input[type="text"] {
       width: 100%;
-      padding: 1rem 1.25rem;
+      padding: 1rem;
       font-size: 1.1rem;
       border: 2px solid #E5E7EB;
       border-radius: 0.75rem;
-      margin-bottom: 1.25rem;
-      transition: all 0.3s;
+      margin-bottom: 1rem;
       background: #F9FAFB;
     }
     
@@ -124,54 +92,47 @@
       outline: none;
       border-color: #FF6000;
       background: white;
-      box-shadow: 0 0 0 4px rgba(255, 96, 0, 0.1);
-      transform: translateY(-2px);
     }
     
     .buttons {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.75rem;
-      margin-bottom: 1rem;
     }
     
     button {
-      padding: 1rem 1.5rem;
+      padding: 1rem;
       border: none;
       border-radius: 0.75rem;
       font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
-      transition: all 0.3s;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
+      transition: all 0.3s;
     }
     
     .btn-search {
-      background: linear-gradient(135deg, #2D2D2D 0%, #1A1A1A 100%);
+      background: #2D2D2D;
       color: white;
       grid-column: 1 / -1;
     }
     
     .btn-search:hover {
+      background: #1A1A1A;
       transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    }
-    
-    .btn-search:active {
-      transform: translateY(0);
     }
     
     .btn-voice {
-      background: linear-gradient(135deg, #FF6000 0%, #FF8C42 100%);
+      background: #FF6000;
       color: white;
     }
     
     .btn-voice:hover {
+      background: #E55500;
       transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(255, 96, 0, 0.4);
     }
     
     .btn-voice.listening {
@@ -179,22 +140,18 @@
     }
     
     .btn-camera {
-      background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+      background: #8B5CF6;
       color: white;
     }
     
     .btn-camera:hover {
+      background: #7C3AED;
       transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
-    }
-    
-    .btn-camera.processing {
-      animation: pulse 1.5s infinite;
     }
     
     @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1) translateY(0); }
-      50% { opacity: 0.8; transform: scale(1.05) translateY(-2px); }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
     }
     
     .btn-clear {
@@ -205,115 +162,151 @@
     
     .btn-clear:hover {
       background: #E5E7EB;
-      transform: translateY(-2px);
     }
     
-    .result {
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(10px);
-      border-radius: 1.5rem;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      padding: 2rem;
-      margin-bottom: 1.5rem;
-      border: 1px solid rgba(255,255,255,0.5);
-    }
-    
-    .result-box {
-      border-radius: 1rem;
-      padding: 1.5rem;
-      border: 2px solid;
-    }
-    
-    .result-success {
-      background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
-      border-color: #10B981;
-    }
-    
-    .result-error {
-      background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
-      border-color: #EF4444;
-    }
-    
-    .result-warning {
-      background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
-      border-color: #F59E0B;
-    }
-    
-    .result-listening {
-      background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-      border-color: #3B82F6;
-    }
-    
-    .result-processing {
-      background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
-      border-color: #8B5CF6;
-    }
-    
-    .result-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 0.75rem;
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
     }
     
-    .success-title { color: #059669; }
-    .error-title { color: #DC2626; }
-    .warning-title { color: #D97706; }
-    .listening-title { color: #2563EB; }
-    .processing-title { color: #7C3AED; }
+    .popup-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
     
-    .sokak-name {
+    .popup-box {
+      background: white;
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      transform: scale(0.8);
+      transition: all 0.3s;
+      text-align: center;
+    }
+    
+    .popup-overlay.show .popup-box {
+      transform: scale(1);
+    }
+    
+    .popup-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+    
+    .popup-success .popup-icon {
+      background: linear-gradient(135deg, #10B981, #059669);
+    }
+    
+    .popup-error .popup-icon {
+      background: linear-gradient(135deg, #EF4444, #DC2626);
+    }
+    
+    .popup-warning .popup-icon {
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+    }
+    
+    .popup-listening .popup-icon {
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+    }
+    
+    .popup-processing .popup-icon {
+      background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    }
+    
+    .popup-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #2D2D2D;
+      margin-bottom: 1rem;
+    }
+    
+    .popup-sokak {
+      font-size: 1.2rem;
       color: #FF6000;
       font-weight: 600;
-      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
     }
     
-    .mahalle-name {
-      font-size: 2rem;
+    .popup-mahalle {
+      font-size: 2.5rem;
       font-weight: 800;
-      background: linear-gradient(135deg, #2D2D2D 0%, #FF6000 100%);
+      background: linear-gradient(135deg, #2D2D2D, #FF6000);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-top: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .popup-message {
+      color: #6B7280;
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .popup-close {
+      background: #2D2D2D;
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    
+    .popup-close:hover {
+      background: #1A1A1A;
     }
     
     .list {
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(10px);
+      background: white;
       border-radius: 1.5rem;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
       padding: 2rem;
-      border: 1px solid rgba(255,255,255,0.5);
     }
     
     .list-title {
       font-size: 1.2rem;
       font-weight: 700;
       color: #2D2D2D;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
     
     .list-item {
-      background: linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%);
+      background: #FAFAFA;
       border: 2px solid #E5E7EB;
       border-radius: 0.75rem;
       padding: 1.25rem;
       margin-bottom: 0.75rem;
-      transition: all 0.3s;
       cursor: pointer;
+      transition: all 0.3s;
     }
     
     .list-item:hover {
       border-color: #FF6000;
       background: white;
       transform: translateX(8px);
-      box-shadow: 0 4px 12px rgba(255, 96, 0, 0.15);
     }
     
     .list-sokak {
@@ -326,38 +319,31 @@
     .list-mahalle {
       color: #6B7280;
       font-size: 0.95rem;
-      margin-top: 0.35rem;
+      margin-top: 0.3rem;
     }
     
     .logo-container {
       position: fixed;
       bottom: 25px;
       right: 25px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
+      background: white;
       padding: 1rem 1.5rem;
       border-radius: 1rem;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       z-index: 1000;
-      border: 1px solid rgba(255,255,255,0.5);
-    }
-    
-    .logo-trendyol {
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-      line-height: 1.2;
-      margin-bottom: 5px;
     }
     
     .logo-trendyol-main {
       color: #000;
       font-size: 24px;
+      font-weight: bold;
       letter-spacing: -1px;
     }
     
     .logo-trendyol-express {
       color: #FF6000;
       font-size: 20px;
+      font-weight: bold;
       letter-spacing: -0.5px;
     }
     
@@ -367,79 +353,46 @@
       font-weight: 600;
       margin-top: 2px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .hidden {
-      display: none;
     }
     
     #cameraInput {
       display: none;
     }
     
-    .progress-bar {
-      width: 100%;
-      height: 6px;
-      background: #E5E7EB;
-      border-radius: 3px;
-      overflow: hidden;
-      margin-top: 1rem;
-    }
-    
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #8B5CF6, #7C3AED);
-      width: 0%;
-      transition: width 0.3s;
-    }
-    
-    .preview-container {
-      margin-top: 1rem;
-      border-radius: 0.75rem;
-      overflow: hidden;
-      max-height: 300px;
-      border: 2px solid #E5E7EB;
-    }
-    
-    .preview-container img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
     @media (max-width: 640px) {
+      .logo-team {
+        width: 100px;
+      }
+      
       h1 {
-        font-size: 1.5rem;
+        font-size: 1.1rem;
       }
       
-      .logo-container {
-        bottom: 15px;
-        right: 15px;
-        padding: 0.75rem 1rem;
-      }
-      
-      .logo-trendyol-main {
-        font-size: 20px;
-      }
-      
-      .logo-trendyol-express {
-        font-size: 16px;
+      .popup-mahalle {
+        font-size: 2rem;
       }
     }
   </style>
 </head>
 <body>
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup-box" id="popupBox">
+      <div class="popup-icon" id="popupIcon"></div>
+      <div class="popup-title" id="popupTitle"></div>
+      <div id="popupContent"></div>
+      <button class="popup-close" onclick="popupKapat()">Tamam</button>
+    </div>
+  </div>
+
   <div class="container">
     <div class="header">
-      <div class="icon-container">
-        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
+      <div class="header-content">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ctext x='100' y='60' font-family='Arial Black' font-size='35' font-weight='900' fill='%23000' text-anchor='middle'%3ETEXAI%3C/text%3E%3Ccircle cx='100' cy='100' r='30' fill='%23FF6000'/%3E%3Ctext x='100' y='160' font-family='Arial Black' font-size='35' font-weight='900' fill='%23000' text-anchor='middle'%3ETEAM%3C/text%3E%3C/svg%3E" alt="TEXAI TEAM" class="logo-team">
+        <div class="header-text">
+          <h1>Sokak Mahalle Bulucu</h1>
+          <p class="subtitle">Yazın • Söyleyin • Fotoğraflayın</p>
+        </div>
       </div>
-      <h1>Sokak Mahalle Bulucu</h1>
-      <p class="subtitle">Yazın • Söyleyin • Fotoğraflayın</p>
     </div>
 
     <div class="main">
@@ -463,10 +416,7 @@
       </div>
       
       <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="fotografOku(event)">
-      <div id="previewContainer"></div>
     </div>
-
-    <div id="result" class="result hidden"></div>
 
     <div class="list">
       <div class="list-title">
@@ -478,28 +428,18 @@
   </div>
 
   <div class="logo-container">
-    <div class="logo-trendyol">
-      <div class="logo-trendyol-main">trendyol</div>
-      <div class="logo-trendyol-express">express</div>
-    </div>
+    <div class="logo-trendyol-main">trendyol</div>
+    <div class="logo-trendyol-express">express</div>
     <div class="logo-subtitle">UZUN ŞUBE AI</div>
   </div>
 
   <script>
     const sokaklar = {
-      'yemeni sokak': 'Ertuğrul Gazi Mahallesi',
-      'çayır sokak': 'Dumlupınar Mahallesi',
-      'sekbanlı sokak': 'Ataevler Mahallesi',
-      'göksun sokak': 'İstasyon Mahallesi',
-      'cami sokak': 'Tepecik Mahallesi',
-      'atatürk caddesi': 'Merkez Mahallesi',
-      'istiklal caddesi': 'Cumhuriyet Mahallesi',
-      'bahçelievler sokak': 'Bahçelievler Mahallesi',
-      'kuşdili sokak': 'Göztepe Mahallesi',
-      'barbaros bulvarı': 'Beşiktaş Mahallesi'
+      // Buraya sokak verilerinizi ekleyin
+      // Örnek: 'sokak adı': 'Mahalle Adı'
     };
 
-    let dinliyor = false;
+    let popupTimer = null;
 
     document.getElementById('sokakInput').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') ara();
@@ -510,7 +450,7 @@
       const aranan = input.toLowerCase().trim();
 
       if (!aranan) {
-        gosterSonuc('error', '⚠️ Uyarı', 'Lütfen bir sokak adı girin!');
+        popupGoster('error', '⚠️', 'Uyarı', '', 'Lütfen bir sokak adı girin!');
         sesliSoyle('Lütfen bir sokak adı girin');
         return;
       }
@@ -518,11 +458,10 @@
       const mahalle = sokaklar[aranan];
 
       if (mahalle) {
-        gosterSonuc('success', '✅ Bulundu!', 
-          `<div class="sokak-name">${input}</div><div class="mahalle-name">${mahalle}</div>`);
+        popupGoster('success', '✅', 'Bulundu!', input, mahalle);
         sesliSoyle(mahalle);
       } else {
-        gosterSonuc('warning', '⚠️ Bulunamadı', 'Bu sokak veritabanında bulunamadı.');
+        popupGoster('warning', '⚠️', 'Bulunamadı', '', 'Bu sokak veritabanında bulunamadı.');
         sesliSoyle('Bu sokak veritabanında bulunamadı');
       }
     }
@@ -530,27 +469,28 @@
     function sesliSoyle(metin) {
       window.speechSynthesis.cancel();
       
-      const utterance = new SpeechSynthesisUtterance(metin);
-      utterance.lang = 'tr-TR';
-      utterance.rate = 1.0;
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
-      
-      if (window.speechSynthesis.getVoices().length > 0) {
-        const turkishVoice = window.speechSynthesis.getVoices().find(voice => voice.lang === 'tr-TR');
+      setTimeout(() => {
+        const utterance = new SpeechSynthesisUtterance(metin);
+        utterance.lang = 'tr-TR';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+        
+        const voices = window.speechSynthesis.getVoices();
+        const turkishVoice = voices.find(voice => voice.lang.startsWith('tr'));
         if (turkishVoice) {
           utterance.voice = turkishVoice;
         }
-      }
-      
-      window.speechSynthesis.speak(utterance);
+        
+        window.speechSynthesis.speak(utterance);
+      }, 100);
     }
 
     function sesliAra() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       
       if (!SpeechRecognition) {
-        gosterSonuc('error', '❌ Uyarı', 'Tarayıcınız ses tanımayı desteklemiyor. Lütfen Chrome veya Edge kullanın.');
+        popupGoster('error', '❌', 'Uyarı', '', 'Tarayıcınız ses tanımayı desteklemiyor.');
         sesliSoyle('Tarayıcınız ses tanımayı desteklemiyor');
         return;
       }
@@ -563,10 +503,9 @@
       const voiceBtn = document.getElementById('voiceBtn');
 
       recognition.onstart = () => {
-        dinliyor = true;
         voiceBtn.classList.add('listening');
         voiceBtn.innerHTML = '<span>🔴</span><span>Dinliyor...</span>';
-        gosterSonuc('listening', '🎤 Dinliyorum', 'Sokak adını söyleyin...');
+        popupGoster('listening', '🎤', 'Dinliyorum', '', 'Sokak adını söyleyin...', false);
         sesliSoyle('Dinliyorum');
       };
 
@@ -578,22 +517,20 @@
         const mahalle = sokaklar[aranan];
 
         if (mahalle) {
-          gosterSonuc('success', '✅ Bulundu!', 
-            `<div class="sokak-name">${sesliBilgi}</div><div class="mahalle-name">${mahalle}</div>`);
+          popupGoster('success', '✅', 'Bulundu!', sesliBilgi, mahalle);
           sesliSoyle(mahalle);
         } else {
-          gosterSonuc('warning', '⚠️ Bulunamadı', 'Bu sokak veritabanında bulunamadı.');
+          popupGoster('warning', '⚠️', 'Bulunamadı', '', 'Bu sokak veritabanında bulunamadı.');
           sesliSoyle('Bulunamadı');
         }
       };
 
       recognition.onerror = () => {
-        gosterSonuc('error', '❌ Hata', 'Ses tanıma hatası. Lütfen tekrar deneyin.');
+        popupGoster('error', '❌', 'Hata', '', 'Ses tanıma hatası.');
         sesliSoyle('Ses tanıma hatası');
       };
 
       recognition.onend = () => {
-        dinliyor = false;
         voiceBtn.classList.remove('listening');
         voiceBtn.innerHTML = '<span>🎤</span><span>Sesli</span>';
       };
@@ -610,49 +547,21 @@
       if (!file) return;
 
       const cameraBtn = document.getElementById('cameraBtn');
-      cameraBtn.classList.add('processing');
       cameraBtn.innerHTML = '<span>⏳</span><span>İşleniyor...</span>';
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const previewContainer = document.getElementById('previewContainer');
-        previewContainer.innerHTML = `<div class="preview-container"><img src="${e.target.result}" alt="Fotoğraf"></div>`;
-      };
-      reader.readAsDataURL(file);
+      popupGoster('processing', '📸', 'İşleniyor', '', 'Fotoğraf analiz ediliyor...', false);
 
-      gosterSonuc('processing', '📸 İşleniyor', 
-        'Fotoğraf analiz ediliyor...<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>');
-
-      Tesseract.recognize(
-        file,
-        'tur',
-        {
-          logger: (m) => {
-            if (m.status === 'recognizing text') {
-              const progress = Math.round(m.progress * 100);
-              const progressFill = document.getElementById('progressFill');
-              if (progressFill) {
-                progressFill.style.width = progress + '%';
-              }
-            }
-          }
-        }
-      ).then(({ data: { text } }) => {
-        cameraBtn.classList.remove('processing');
+      Tesseract.recognize(file, 'tur')
+      .then(({ data: { text } }) => {
         cameraBtn.innerHTML = '<span>📸</span><span>Kamera</span>';
 
-        const temizMetin = text.toLowerCase()
-          .replace(/[^\wşğüöçıİ\s]/g, '')
-          .trim();
-
-        console.log('OCR Sonucu:', temizMetin);
+        const temizMetin = text.toLowerCase().replace(/[^\wşğüöçıİ\s]/g, '').trim();
 
         let bulundu = false;
         for (const [sokak, mahalle] of Object.entries(sokaklar)) {
           if (temizMetin.includes(sokak) || sokak.includes(temizMetin)) {
             document.getElementById('sokakInput').value = sokak;
-            gosterSonuc('success', '✅ Bulundu!', 
-              `<div class="sokak-name">${sokak}</div><div class="mahalle-name">${mahalle}</div>`);
+            popupGoster('success', '✅', 'Bulundu!', sokak, mahalle);
             sesliSoyle(mahalle);
             bulundu = true;
             break;
@@ -660,38 +569,57 @@
         }
 
         if (!bulundu) {
-          gosterSonuc('warning', '⚠️ Bulunamadı', 
-            `Fotoğraftan okunan metin: "${temizMetin}"<br><br>Bu sokak veritabanında bulunamadı.`);
+          popupGoster('warning', '⚠️', 'Bulunamadı', '', 'Bu sokak veritabanında bulunamadı.');
           sesliSoyle('Sokak bulunamadı');
         }
-      }).catch(err => {
-        console.error('OCR Hatası:', err);
-        cameraBtn.classList.remove('processing');
+      })
+      .catch(() => {
         cameraBtn.innerHTML = '<span>📸</span><span>Kamera</span>';
-        gosterSonuc('error', '❌ Hata', 'Fotoğraf okunamadı. Lütfen daha net bir fotoğraf çekin.');
+        popupGoster('error', '❌', 'Hata', '', 'Fotoğraf okunamadı.');
         sesliSoyle('Fotoğraf okunamadı');
       });
     }
 
     function temizle() {
       document.getElementById('sokakInput').value = '';
-      document.getElementById('result').classList.add('hidden');
-      document.getElementById('previewContainer').innerHTML = '';
       document.getElementById('cameraInput').value = '';
+      popupKapat();
     }
 
-    function gosterSonuc(tip, baslik, mesaj) {
-      const resultDiv = document.getElementById('result');
-      const tipClass = `result-${tip}`;
-      const titleClass = `${tip}-title`;
+    function popupGoster(tip, emoji, baslik, sokak, mesaj, autoClose = true) {
+      const overlay = document.getElementById('popupOverlay');
+      const box = document.getElementById('popupBox');
+      const icon = document.getElementById('popupIcon');
+      const title = document.getElementById('popupTitle');
+      const content = document.getElementById('popupContent');
 
-      resultDiv.innerHTML = `
-        <div class="result-box ${tipClass}">
-          <div class="result-title ${titleClass}">${baslik}</div>
-          <div>${mesaj}</div>
-        </div>
-      `;
-      resultDiv.classList.remove('hidden');
+      box.className = 'popup-box popup-' + tip;
+      icon.textContent = emoji;
+      title.textContent = baslik;
+
+      if (sokak) {
+        content.innerHTML = `
+          <div class="popup-sokak">${sokak}</div>
+          <div class="popup-mahalle">${mesaj}</div>
+        `;
+      } else {
+        content.innerHTML = `<div class="popup-message">${mesaj}</div>`;
+      }
+
+      overlay.classList.add('show');
+
+      if (popupTimer) clearTimeout(popupTimer);
+      
+      if (autoClose) {
+        popupTimer = setTimeout(() => {
+          popupKapat();
+        }, 5000);
+      }
+    }
+
+    function popupKapat() {
+      document.getElementById('popupOverlay').classList.remove('show');
+      if (popupTimer) clearTimeout(popupTimer);
     }
 
     function sokakListesiOlustur() {
@@ -714,6 +642,10 @@
     window.onload = function() {
       sokakListesiOlustur();
       window.speechSynthesis.getVoices();
+    };
+
+    document.getElementById('popupOverlay').onclick = function(e) {
+      if (e.target === this) popupKapat();
     };
   </script>
 </body>
