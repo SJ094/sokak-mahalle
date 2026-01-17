@@ -374,7 +374,6 @@
       display: none;
     }
     
-    /* Kamera input gizle */
     #cameraInput {
       display: none;
     }
@@ -393,12 +392,6 @@
       background: linear-gradient(90deg, #8B5CF6, #7C3AED);
       width: 0%;
       transition: width 0.3s;
-      animation: shimmer 1.5s infinite;
-    }
-    
-    @keyframes shimmer {
-      0% { background-position: -100% 0; }
-      100% { background-position: 100% 0; }
     }
     
     .preview-container {
@@ -438,7 +431,6 @@
 </head>
 <body>
   <div class="container">
-    <!-- Başlık -->
     <div class="header">
       <div class="icon-container">
         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -450,7 +442,6 @@
       <p class="subtitle">Yazın • Söyleyin • Fotoğraflayın</p>
     </div>
 
-    <!-- Ana Bölüm -->
     <div class="main">
       <label>🔍 Sokak Adı</label>
       <input type="text" id="sokakInput" placeholder="Örn: Yemeni Sokak">
@@ -475,10 +466,8 @@
       <div id="previewContainer"></div>
     </div>
 
-    <!-- Sonuç -->
     <div id="result" class="result hidden"></div>
 
-    <!-- Kayıtlı Sokaklar -->
     <div class="list">
       <div class="list-title">
         <span>📍</span>
@@ -488,7 +477,6 @@
     </div>
   </div>
 
-  <!-- Logo - Sağ Alt -->
   <div class="logo-container">
     <div class="logo-trendyol">
       <div class="logo-trendyol-main">trendyol</div>
@@ -498,7 +486,6 @@
   </div>
 
   <script>
-    // Sokak veritabanı
     const sokaklar = {
       'yemeni sokak': 'Ertuğrul Gazi Mahallesi',
       'çayır sokak': 'Dumlupınar Mahallesi',
@@ -514,12 +501,10 @@
 
     let dinliyor = false;
 
-    // Enter tuşuyla arama
     document.getElementById('sokakInput').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') ara();
     });
 
-    // Arama fonksiyonu
     function ara() {
       const input = document.getElementById('sokakInput').value;
       const aranan = input.toLowerCase().trim();
@@ -535,7 +520,6 @@
       if (mahalle) {
         gosterSonuc('success', '✅ Bulundu!', 
           `<div class="sokak-name">${input}</div><div class="mahalle-name">${mahalle}</div>`);
-        // Sesli yanıt - mahalle adını söyle
         sesliSoyle(mahalle);
       } else {
         gosterSonuc('warning', '⚠️ Bulunamadı', 'Bu sokak veritabanında bulunamadı.');
@@ -543,9 +527,7 @@
       }
     }
 
-    // Sesli konuşma fonksiyonu - GELİŞTİRİLMİŞ
     function sesliSoyle(metin) {
-      // Önceki konuşmaları iptal et
       window.speechSynthesis.cancel();
       
       const utterance = new SpeechSynthesisUtterance(metin);
@@ -554,7 +536,6 @@
       utterance.pitch = 1.0;
       utterance.volume = 1.0;
       
-      // Sesler yüklendikten sonra konuş
       if (window.speechSynthesis.getVoices().length > 0) {
         const turkishVoice = window.speechSynthesis.getVoices().find(voice => voice.lang === 'tr-TR');
         if (turkishVoice) {
@@ -565,7 +546,6 @@
       window.speechSynthesis.speak(utterance);
     }
 
-    // Sesli arama - GELİŞTİRİLMİŞ
     function sesliAra() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       
@@ -600,7 +580,6 @@
         if (mahalle) {
           gosterSonuc('success', '✅ Bulundu!', 
             `<div class="sokak-name">${sesliBilgi}</div><div class="mahalle-name">${mahalle}</div>`);
-          // Sesli cevap - mahalle adını söyle
           sesliSoyle(mahalle);
         } else {
           gosterSonuc('warning', '⚠️ Bulunamadı', 'Bu sokak veritabanında bulunamadı.');
@@ -622,12 +601,10 @@
       recognition.start();
     }
 
-    // YENİ: Kamera aç
     function kameraAc() {
       document.getElementById('cameraInput').click();
     }
 
-    // YENİ: Fotoğraf oku (OCR)
     function fotografOku(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -636,7 +613,6 @@
       cameraBtn.classList.add('processing');
       cameraBtn.innerHTML = '<span>⏳</span><span>İşleniyor...</span>';
 
-      // Önizleme göster
       const reader = new FileReader();
       reader.onload = function(e) {
         const previewContainer = document.getElementById('previewContainer');
@@ -647,10 +623,9 @@
       gosterSonuc('processing', '📸 İşleniyor', 
         'Fotoğraf analiz ediliyor...<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>');
 
-      // OCR işlemi
       Tesseract.recognize(
         file,
-        'tur', // Türkçe dil
+        'tur',
         {
           logger: (m) => {
             if (m.status === 'recognizing text') {
@@ -666,14 +641,12 @@
         cameraBtn.classList.remove('processing');
         cameraBtn.innerHTML = '<span>📸</span><span>Kamera</span>';
 
-        // Metni temizle ve normalize et
         const temizMetin = text.toLowerCase()
           .replace(/[^\wşğüöçıİ\s]/g, '')
           .trim();
 
         console.log('OCR Sonucu:', temizMetin);
 
-        // Sokak veritabanında ara
         let bulundu = false;
         for (const [sokak, mahalle] of Object.entries(sokaklar)) {
           if (temizMetin.includes(sokak) || sokak.includes(temizMetin)) {
@@ -700,7 +673,6 @@
       });
     }
 
-    // Temizle
     function temizle() {
       document.getElementById('sokakInput').value = '';
       document.getElementById('result').classList.add('hidden');
@@ -708,7 +680,6 @@
       document.getElementById('cameraInput').value = '';
     }
 
-    // Sonuç göster
     function gosterSonuc(tip, baslik, mesaj) {
       const resultDiv = document.getElementById('result');
       const tipClass = `result-${tip}`;
@@ -723,7 +694,6 @@
       resultDiv.classList.remove('hidden');
     }
 
-    // Sokak listesini oluştur
     function sokakListesiOlustur() {
       const liste = document.getElementById('sokakListesi');
       Object.entries(sokaklar).forEach(([sokak, mahalle]) => {
@@ -741,12 +711,10 @@
       });
     }
 
-    // Sayfa yüklendiğinde
     window.onload = function() {
       sokakListesiOlustur();
-      
-      // Ses sentezini hazırla
       window.speechSynthesis.getVoices();
     };
-
-    // Ses
+  </script>
+</body>
+</html>
