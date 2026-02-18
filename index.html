@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sokak adını söyleyin veya yazın, mahallesini öğrenin">
+  <meta name="theme-color" content="#4F46E5">
   <title>Sokak Mahalle Bulucu</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js"></script>
   
   <style>
     * {
@@ -14,613 +15,637 @@
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #FF6000 0%, #FF8C42 50%, #FFA566 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #F5F5F5 0%, #E8E8E8 50%, #FAFAFA 100%);
       min-height: 100vh;
       padding: 1rem;
     }
     
     .container {
-      max-width: 600px;
+      max-width: 500px;
       margin: 2rem auto;
     }
     
     .header {
       background: white;
-      border-radius: 1.5rem;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      border-radius: 1rem 1rem 0 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       padding: 2rem;
       text-align: center;
-      margin-bottom: 1.5rem;
+      border-bottom: 3px solid #FF6000;
+    }
+    
+    .icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 1rem;
+      color: #FF6000;
     }
     
     h1 {
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       color: #2D2D2D;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.5rem;
       font-weight: 700;
     }
     
     .subtitle {
       color: #6B7280;
-      font-size: 0.85rem;
     }
     
     .main {
       background: white;
-      border-radius: 1.5rem;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      padding: 2rem;
-      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 1rem 1.5rem;
     }
     
     label {
       display: block;
       font-weight: 600;
       color: #374151;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
+      margin-bottom: 0.4rem;
+      font-size: 1rem;
     }
     
-    input[type="text"] {
+    input {
       width: 100%;
-      padding: 1rem;
-      font-size: 1.1rem;
-      border: 2px solid #E5E7EB;
-      border-radius: 0.75rem;
-      margin-bottom: 1rem;
-      background: #F9FAFB;
+      padding: 0.5rem 0.75rem;
+      font-size: 1.05rem;
+      border: 1.5px solid #E0E0E0;
+      border-radius: 0.5rem;
+      margin-bottom: 0.75rem;
+      transition: all 0.3s;
+      background: #FAFAFA;
     }
     
     input:focus {
       outline: none;
       border-color: #FF6000;
       background: white;
+      box-shadow: 0 0 0 2px rgba(255, 96, 0, 0.1);
     }
     
     .buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: flex;
       gap: 0.75rem;
     }
     
     button {
-      padding: 1rem;
+      padding: 0.5rem 1.1rem;
       border: none;
-      border-radius: 0.75rem;
+      border-radius: 0.5rem;
       font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      transition: all 0.3s;
+      transition: all 0.2s;
     }
     
     .btn-search {
+      flex: 1;
       background: #2D2D2D;
       color: white;
-      grid-column: 1 / -1;
     }
     
     .btn-search:hover {
       background: #1A1A1A;
-      transform: translateY(-2px);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
     
     .btn-voice {
       background: #FF6000;
       color: white;
+      padding: 0.5rem 1rem;
     }
     
     .btn-voice:hover {
       background: #E55500;
-      transform: translateY(-2px);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(255, 96, 0, 0.3);
     }
     
     .btn-voice.listening {
+      background: #FF6000;
       animation: pulse 1.5s infinite;
     }
     
-    .btn-camera {
-      background: #8B5CF6;
-      color: white;
-    }
-    
-    .btn-camera:hover {
-      background: #7C3AED;
-      transform: translateY(-2px);
-    }
-    
-    .btn-camera.active {
-      background: #059669;
-    }
-    
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
     }
     
     .btn-clear {
-      background: #F3F4F6;
+      background: #E5E7EB;
       color: #374151;
-      grid-column: 1 / -1;
+      padding: 0.5rem 1rem;
     }
     
     .btn-clear:hover {
-      background: #E5E7EB;
+      background: #D1D5DB;
     }
     
-    .camera-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.95);
-      z-index: 9998;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-    
-    .camera-modal.active {
-      display: flex;
-    }
-    
-    .camera-container {
-      position: relative;
-      max-width: 600px;
-      width: 100%;
-      background: #000;
-      border-radius: 1rem;
-      overflow: hidden;
-    }
-    
-    #cameraVideo {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-    
-    .camera-overlay {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 80%;
-      height: 40%;
-      border: 3px dashed #FF6000;
-      border-radius: 1rem;
-      pointer-events: none;
-    }
-    
-    .camera-controls {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1.5rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    
-    .btn-scan {
-      background: #FF6000;
-      color: white;
-      padding: 1rem 2.5rem;
-      font-size: 1.2rem;
-      border-radius: 0.75rem;
-      border: none;
-      cursor: pointer;
-      font-weight: 700;
-      transition: all 0.3s;
-    }
-    
-    .btn-scan:hover {
-      background: #E55500;
-      transform: scale(1.05);
-    }
-    
-    .btn-scan.scanning {
-      background: #6B7280;
-      cursor: not-allowed;
-    }
-    
-    .btn-close-camera {
-      background: #EF4444;
-      color: white;
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      border-radius: 0.75rem;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    
-    .btn-close-camera:hover {
-      background: #DC2626;
-    }
-    
-    .camera-hint {
-      color: white;
-      text-align: center;
-      margin-bottom: 1rem;
-      font-size: 1rem;
-      background: rgba(255, 96, 0, 0.9);
-      padding: 1rem;
-      border-radius: 0.75rem;
-      max-width: 600px;
-    }
-    
-    .popup-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s;
-    }
-    
-    .popup-overlay.show {
-      opacity: 1;
-      visibility: visible;
-    }
-    
-    .popup-box {
+    .result {
       background: white;
-      border-radius: 1.5rem;
-      padding: 2.5rem;
-      max-width: 450px;
-      width: 90%;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
-      transform: scale(0.8);
-      transition: all 0.3s;
-      text-align: center;
+      border-radius: 0 0 1rem 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 2rem;
+      margin-top: 0.25rem;
+      border-left: 4px solid #FF6000;
     }
     
-    .popup-overlay.show .popup-box {
-      transform: scale(1);
+    .result-box {
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      border: 2px solid;
     }
     
-    .popup-icon {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 1.5rem;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3rem;
+    .result-success {
+      background: #F0FDF4;
+      border-color: #22C55E;
     }
     
-    .popup-success .popup-icon {
-      background: linear-gradient(135deg, #10B981, #059669);
+    .result-error {
+      background: #FEF2F2;
+      border-color: #EF4444;
     }
     
-    .popup-error .popup-icon {
-      background: linear-gradient(135deg, #EF4444, #DC2626);
+    .result-warning {
+      background: #FFFBEB;
+      border-color: #FF6000;
     }
     
-    .popup-warning .popup-icon {
-      background: linear-gradient(135deg, #F59E0B, #D97706);
+    .result-listening {
+      background: #F0F9FF;
+      border-color: #FF6000;
     }
     
-    .popup-listening .popup-icon {
-      background: linear-gradient(135deg, #3B82F6, #2563EB);
-    }
-    
-    .popup-processing .popup-icon {
-      background: linear-gradient(135deg, #8B5CF6, #7C3AED);
-    }
-    
-    .popup-title {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: #2D2D2D;
-      margin-bottom: 1rem;
-    }
-    
-    .popup-sokak {
-      font-size: 1.2rem;
-      color: #FF6000;
-      font-weight: 600;
+    .result-title {
+      font-size: 1.1rem;
+      font-weight: 700;
       margin-bottom: 0.5rem;
     }
     
-    .popup-mahalle {
-      font-size: 2.5rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #2D2D2D, #FF6000);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 1.5rem;
-    }
+    .success-title { color: #16A34A; }
+    .error-title { color: #DC2626; }
+    .warning-title { color: #FF6000; }
+    .listening-title { color: #FF6000; }
     
-    .popup-message {
-      color: #6B7280;
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .popup-close {
-      background: #2D2D2D;
-      color: white;
-      border: none;
-      padding: 0.75rem 2rem;
-      border-radius: 0.75rem;
+    .sokak-name {
+      color: #FF6000;
       font-weight: 600;
-      cursor: pointer;
-      font-size: 1rem;
     }
     
-    .popup-close:hover {
-      background: #1A1A1A;
+    .mahalle-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2D2D2D;
+      margin-top: 0.5rem;
     }
     
-    .list {
+    .mahalle-section {
       background: white;
-      border-radius: 1.5rem;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       padding: 2rem;
+      margin-top: 1.5rem;
+      border-top: 3px solid #FF6000;
     }
-    
-    .list-title {
+
+    .mahalle-section-title {
       font-size: 1.2rem;
       font-weight: 700;
       color: #2D2D2D;
+      margin-bottom: 1rem;
+    }
+
+    .mahalle-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .btn-mahalle {
+      background: #FAFAFA;
+      border: 2px solid #E0E0E0;
+      border-radius: 2rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-mahalle:not([class*="btn-mahalle-"]):hover {
+      border-color: #FF6000;
+      color: #FF6000;
+      background: white;
+    }
+
+    .btn-mahalle.active {
+      background: #FF6000;
+      border-color: #FF6000;
+      color: white;
+    }
+
+    /* Grup renkleri */
+    .btn-mahalle-gri { border-color: #9CA3AF; color: #4B5563; }
+    .btn-mahalle-gri:hover, .btn-mahalle-gri.active { background: #9CA3AF; border-color: #9CA3AF; color: white; }
+
+    .btn-mahalle-yesil { border-color: #22C55E; color: #16A34A; }
+    .btn-mahalle-yesil:hover, .btn-mahalle-yesil.active { background: #22C55E; border-color: #22C55E; color: white; }
+
+    .btn-mahalle-kirmizi { border-color: #EF4444; color: #DC2626; }
+    .btn-mahalle-kirmizi:hover, .btn-mahalle-kirmizi.active { background: #EF4444; border-color: #EF4444; color: white; }
+
+    .btn-mahalle-mavi { border-color: #3B82F6; color: #2563EB; }
+    .btn-mahalle-mavi:hover, .btn-mahalle-mavi.active { background: #3B82F6; border-color: #3B82F6; color: white; }
+
+    .btn-mahalle-sari { border-color: #EAB308; color: #A16207; }
+    .btn-mahalle-sari:hover, .btn-mahalle-sari.active { background: #EAB308; border-color: #EAB308; color: white; }
+
+    .btn-mahalle-beyaz { border-color: #D1D5DB; color: #374151; background: white; }
+    .btn-mahalle-beyaz:hover, .btn-mahalle-beyaz.active { background: #F3F4F6; border-color: #9CA3AF; color: #111827; }
+
+    /* Grup ayırıcı */
+    .grup-ayirici {
+      width: 100%;
+      height: 1px;
+      background: #E5E7EB;
+      margin: 0.5rem 0;
+    }
+
+
+    .mahalle-detail {
+      margin-top: 1.5rem;
+      border-top: 1px solid #E8E8E8;
+      padding-top: 1.5rem;
+    }
+
+    .mahalle-detail-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #FF6000;
       margin-bottom: 1rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
-    
-    .list-item {
-      background: #FAFAFA;
-      border: 2px solid #E5E7EB;
-      border-radius: 0.75rem;
-      padding: 1.25rem;
-      margin-bottom: 0.75rem;
+
+    .btn-geri {
+      background: none;
+      border: none;
+      font-size: 1.1rem;
       cursor: pointer;
-      transition: all 0.3s;
+      color: #6B7280;
+      padding: 0;
     }
-    
-    .list-item:hover {
+
+    .btn-geri:hover { color: #FF6000; }
+
+    .sokak-item {
+      background: #FAFAFA;
+      border: 1px solid #E8E8E8;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+      color: #2D2D2D;
+      text-transform: capitalize;
+      transition: all 0.2s;
+    }
+
+    .sokak-item:hover {
       border-color: #FF6000;
       background: white;
-      transform: translateX(8px);
-    }
-    
-    .list-sokak {
-      font-weight: 700;
+      transform: translateX(4px);
       color: #FF6000;
-      text-transform: capitalize;
-      font-size: 1.05rem;
-    }
-    
-    .list-mahalle {
-      color: #6B7280;
-      font-size: 0.95rem;
-      margin-top: 0.3rem;
     }
     
     .logo-container {
       position: fixed;
-      bottom: 25px;
-      right: 25px;
-      background: white;
-      padding: 1rem 1.5rem;
-      border-radius: 1rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      bottom: 20px;
+      right: 20px;
+      text-align: right;
       z-index: 1000;
+    }
+    
+    .logo-trendyol {
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      line-height: 1.2;
+      margin-bottom: 5px;
     }
     
     .logo-trendyol-main {
       color: #000;
-      font-size: 24px;
-      font-weight: bold;
+      font-size: 28px;
       letter-spacing: -1px;
     }
     
     .logo-trendyol-express {
       color: #FF6000;
-      font-size: 20px;
-      font-weight: bold;
+      font-size: 24px;
       letter-spacing: -0.5px;
     }
     
     .logo-subtitle {
       color: #6B7280;
-      font-size: 11px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: normal;
       margin-top: 2px;
-      text-transform: uppercase;
     }
     
-    canvas {
+
+    /* Modal overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 1rem;
+    }
+
+    .modal-overlay.hidden { display: none; }
+
+    .modal-box {
+      background: white;
+      border-radius: 1rem;
+      width: 100%;
+      max-width: 420px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      background: #FF6000;
+      color: white;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .modal-close:hover { background: rgba(255,255,255,0.35); }
+
+    .modal-body {
+      overflow-y: auto;
+      padding: 1.25rem;
+    }
+
+    .modal-sokak-item {
+      background: #FAFAFA;
+      border: 1px solid #E8E8E8;
+      border-radius: 0.5rem;
+      padding: 0.7rem 1rem;
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: #2D2D2D;
+      text-transform: capitalize;
+      transition: all 0.2s;
+    }
+
+    .modal-sokak-item:hover {
+      border-color: #FF6000;
+      background: #FFF5EF;
+      color: #FF6000;
+      transform: translateX(4px);
+    }
+
+    .hidden {
       display: none;
-    }
-    
-    @media (max-width: 640px) {
-      h1 {
-        font-size: 1.1rem;
-      }
-      
-      .popup-mahalle {
-        font-size: 2rem;
-      }
-      
-      .btn-scan {
-        padding: 1rem 2rem;
-        font-size: 1rem;
-      }
     }
   </style>
 </head>
 <body>
-  <div class="popup-overlay" id="popupOverlay">
-    <div class="popup-box" id="popupBox">
-      <div class="popup-icon" id="popupIcon"></div>
-      <div class="popup-title" id="popupTitle"></div>
-      <div id="popupContent"></div>
-      <button class="popup-close" onclick="popupKapat()">Tamam</button>
-    </div>
-  </div>
-
-  <div class="camera-modal" id="cameraModal">
-    <div class="camera-hint">
-      📸 Sokak tabelasını çerçeve içine alın ve "Tara" butonuna basın
-    </div>
-    <div class="camera-container">
-      <video id="cameraVideo" autoplay playsinline></video>
-      <div class="camera-overlay"></div>
-    </div>
-    <div class="camera-controls">
-      <button class="btn-scan" id="btnScan" onclick="taramaYap()">
-        📸 Tara
-      </button>
-      <button class="btn-close-camera" onclick="kameraKapat()">
-        ❌ Kapat
-      </button>
-    </div>
-  </div>
-
   <div class="container">
+    <!-- Başlık -->
     <div class="header">
-      <h1>Sokak Mahalle Bulucu</h1>
-      <p class="subtitle">Yazın • Söyleyin • Fotoğraflayın</p>
+      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      <h1>Sokak - Mahalle Bulucu</h1>
+      <p class="subtitle">Sokak adını girin, mahallesini öğrenin</p>
     </div>
 
+    <!-- Ana Bölüm -->
     <div class="main">
-      <label>🔍 Sokak Adı</label>
-      <input type="text" id="sokakInput" placeholder="Örn: çayır">
+      <label>Sokak Adı</label>
+      <input type="text" id="sokakInput" placeholder="Örn: Koç Sokak">
       
       <div class="buttons">
-        <button class="btn-search" onclick="ara()">
-          <span>🔍</span>
-          <span>Ara</span>
-        </button>
-        <button class="btn-voice" id="voiceBtn" onclick="sesliAra()">
-          <span>🎤</span>
-          <span>Sesli</span>
-        </button>
-        <button class="btn-camera" id="cameraBtn" onclick="kameraAc()">
-          <span>📸</span>
-          <span>Kamera</span>
-        </button>
+        <button class="btn-search" onclick="ara()">🔍 Ara</button>
+        <button class="btn-voice" id="voiceBtn" onclick="sesliAra()">🎤</button>
         <button class="btn-clear" onclick="temizle()">Temizle</button>
       </div>
     </div>
 
-    <div class="list">
-      <div class="list-title">
-        <span>📍</span>
-        <span>Kayıtlı Sokaklar</span>
-      </div>
-      <div id="sokakListesi"></div>
+    <!-- Sonuç -->
+    <div id="result" class="result hidden"></div>
+
+    <!-- Mahalleler -->
+    <div class="mahalle-section">
+      <div class="mahalle-section-title">🏘️ Mahalleler</div>
+      <div class="mahalle-buttons" id="mahalleButtons"></div>
+
     </div>
   </div>
 
+  <!-- Modal -->
+  <div class="modal-overlay hidden" id="modalOverlay" onclick="modalKapat(event)">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-header-title" id="modalBaslik"></div>
+        <button class="modal-close" onclick="geriDon()">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Logo - Sağ Alt -->
   <div class="logo-container">
-    <div class="logo-trendyol-main">trendyol</div>
-    <div class="logo-trendyol-express">express</div>
+    <div class="logo-trendyol">
+      <div class="logo-trendyol-main">trendyol</div>
+      <div class="logo-trendyol-express">express</div>
+    </div>
     <div class="logo-subtitle">UZUN ŞUBE AI</div>
   </div>
 
-  <canvas id="canvas"></canvas>
-
   <script>
+    // Sokak veritabanı
     const sokaklar = {
-      'yemeni': {
-        sokakAdi: 'Yemeni Sokak',
-        ekranYazisi: 'Ertuğrul Gazi Mahallesi',
-        sesliYanit: 'Ertuğrul Gazi Mahallesi'
-      },
-      'çayır': {
-        sokakAdi: 'Çayır Sokak',
-        ekranYazisi: 'Dumlupınar-1',
-        sesliYanit: 'Tolga Örengül'
-      },
-      'sekbanlı': {
-        sokakAdi: 'Sekbanlı Sokak',
-        ekranYazisi: 'Ataevler Mahallesi',
-        sesliYanit: 'Ataevler Mahallesi'
-      },
-      'göksun': {
-        sokakAdi: 'Göksun Sokak',
-        ekranYazisi: 'İstasyon Mahallesi',
-        sesliYanit: 'İstasyon Mahallesi'
-      },
-      'cami': {
-        sokakAdi: 'Cami Sokak',
-        ekranYazisi: 'Tepecik Mahallesi',
-        sesliYanit: 'Tepecik Mahallesi'
-      }
+      'yemeni sokak': 'Ertuğrul Gazi',
+      'çayır sokak': 'Dumlupınar 2',
+      'sekbanlı sokak': 'Ataevler',
+      'göksun sokak': 'İstasyon',
+      'cami sokak': 'Tepecik',
+      'hafız binbaşı sokak': 'Karabaş 3',
+      'yüce rıfat sokak': 'Körfez 1',
+      'berk sokak': 'Körfez 2',
+      'koç sokak': 'Uzunçiftlik',
+      'saklı sokak': 'Emekevler 1',
+      'asker sokak': 'Emekevler 2',
+      'aşhane sokak': 'Ataevler 1',
+      'sarvan sokak': 'Ataevler 2',
+      'faruk nafız çamlıbel sokak': 'Ataevler 3',
+      'efsane sokak': 'Eşme',
+      'imar caddesi': 'İbrikdere',
+      'firuze caddesi': 'Uzuntarla',
+      'gökbudak sokak': 'Ertuğrul Gazi',
+      'ozan sokak': 'Dumlupınar 1',
+      'hazer sokak': 'Dumlupınar 2',
+      'süleyman paşa sokak': 'Karabaş 1',
+      'rauf orbay sokak': 'Karabaş 2',
+      'tepecik sokak': 'Tepecik',
+      'uğur sokak': 'İstasyon 1',
+      'gökmen sokak': 'Köseköy 1',
+      'taşkın sokak': 'FSM 1',
+      'gülaçtı sokak': 'FSM 2',
+      'egemen sokak': 'FSM 3',
+      'yadigar sokak': 'Sarımeşe 1',
+      'mukaddes sokak': 'Sarımeşe 2',
+      'çeltikdüzü sokak': 'Arslanbey 1',
+      'emrah sokak': 'Rahmiye',
+      'ateş sokak': 'Maşukiye',
+      'ovalı sokak': 'Acısu 1',
+      'kır sokak': 'Derbent',
+      'ender sokak': 'Acısu 2',
+      'bahçelievler sokak': 'Suadiye',
+      'habiloğlu sokak': 'Çepni',
+      'gülova sokak': 'Şevkatiye',
+      'keleşli sokak': 'Balaban',
+      'beşiktaş sokak': 'Şirinsulhiye',
+      'atabey sokak': 'Arslanbey 2',
+      'latif bey sokak': 'Ömerağa 1'
     };
 
-    let popupTimer = null;
-    let stream = null;
-    let scanning = false;
 
+    // Mahalle sorumluları
+    const mahalleSorumlulari = {
+      'Acısu 1': 'Enes Durmuş',
+      'Maşukiye': 'Enes Durmuş',
+      'Arslanbey 1': 'Abdülkadir Selvi',
+      'Rahmiye': 'Abdülkadir Selvi',
+      'Balaban': 'Muhammet İbrahimoğlu',
+      'Derbent': 'Selim Yıldız',
+      'Acısu 2': 'Selim Yıldız',
+      'Suadiye': 'Kadir Yıldız',
+      'Çepni': 'Kadir Yıldız',
+      'Şevkatiye': 'Berk Semerci',
+      'Arslanbey 2': 'Berk Semerci',
+      'Ataevler 1': 'Yalçın Akyüz',
+      'Emekevler 2': 'Yalçın Akyüz',
+      'Ataevler 2': 'Furkan Özbay',
+      'Ataevler 3': 'Furkan Kaynak',
+      'Uzunçiftlik': 'Hüseyin Örengül',
+      'Dumlupınar 1': 'Osman Örengül',
+      'Dumlupınar 2': 'Tolga Örengül',
+      'Ertuğrul Gazi': 'Burak Özer',
+      'Eşme': 'Semih Şimşek',
+      'İbrikdere': 'Semih Şimşek',
+      'Uzuntarla': 'Semih Şimşek',
+      'FSM 1': 'İbrahim Gökırmak',
+      'FSM 2': 'Arif Emre',
+      'Sarımeşe 2': 'Arif Emre',
+      'FSM 3': 'Ali Durmuş',
+      'Köseköy 1': 'Burak Güler',
+      'İstasyon 1': 'İdris Maden',
+      'Karabaş 1': 'Bilal Uçar',
+      'Karabaş 2': 'Eyüp Kılıç',
+      'Karabaş 3': 'Kenan Oruç',
+      'Körfez 1': 'Kenan Oruç',
+      'Tepecik': 'Zeki Kanpara',
+      'Körfez 2': 'Mustafa Tayyip',
+      'Emekevler 1': 'Yalçın Akyüz',
+      'Sarımeşe 1': 'Şaban Öz',
+      'Şirinsulhiye': 'Muhammet İbrahimoğlu',
+      'Ömerağa 1': 'Bilal Uçar'
+    };
+
+    function sorumluGetir(mahalle) {
+      return mahalleSorumlulari[mahalle] || mahalle;
+    }
+
+    let dinliyor = false;
+
+    // Enter tuşuyla arama
     document.getElementById('sokakInput').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') ara();
     });
 
+    // Arama fonksiyonu
     function ara() {
       const input = document.getElementById('sokakInput').value;
       const aranan = input.toLowerCase().trim();
+      const resultDiv = document.getElementById('result');
 
       if (!aranan) {
-        popupGoster('error', '⚠️', 'Uyarı', null, 'Lütfen bir sokak adı girin!');
-        sesliSoyle('Lütfen bir sokak adı girin');
+        gosterSonuc('error', '❌ Uyarı', 'Lütfen bir sokak adı girin!');
         return;
       }
 
-      const sokakBilgi = sokaklar[aranan];
+      const mahalle = sokaklar[aranan];
 
-      if (sokakBilgi) {
-        popupGoster('success', '✅', 'Bulundu!', sokakBilgi.sokakAdi, sokakBilgi.ekranYazisi);
-        sesliSoyle(sokakBilgi.sesliYanit);
+      if (mahalle) {
+        gosterSonuc('success', '✅ Bulundu!', 
+          `<div class="sokak-name">${input}</div><div class="mahalle-name">${mahalle}</div>`);
+        sesliSoyle(sorumluGetir(mahalle));
       } else {
-        popupGoster('warning', '⚠️', 'Bulunamadı', null, 'Bu sokak veritabanında bulunamadı.');
-        sesliSoyle('Bu sokak veritabanında bulunamadı');
+        gosterSonuc('warning', '⚠️ Bulunamadı', 'Bu sokak veritabanında bulunamadı.');
       }
     }
 
+    // Sesli konuşma fonksiyonu
     function sesliSoyle(metin) {
+      // Önceki konuşmaları iptal et
       window.speechSynthesis.cancel();
       
-      setTimeout(() => {
-        const utterance = new SpeechSynthesisUtterance(metin);
-        utterance.lang = 'tr-TR';
-        utterance.rate = 0.9;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
-        
-        const voices = window.speechSynthesis.getVoices();
-        const turkishVoice = voices.find(voice => voice.lang.startsWith('tr'));
-        if (turkishVoice) {
-          utterance.voice = turkishVoice;
-        }
-        
-        window.speechSynthesis.speak(utterance);
-      }, 100);
+      const utterance = new SpeechSynthesisUtterance(metin);
+      utterance.lang = 'tr-TR';
+      utterance.rate = 1.1; // Konuşma hızını artırdık
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      
+      // Hemen konuş
+      window.speechSynthesis.speak(utterance);
     }
 
+    // Sesli arama
     function sesliAra() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       
       if (!SpeechRecognition) {
-        popupGoster('error', '❌', 'Uyarı', null, 'Tarayıcınız ses tanımayı desteklemiyor.');
-        sesliSoyle('Tarayıcınız ses tanımayı desteklemiyor');
+        gosterSonuc('error', '❌ Uyarı', 'Tarayıcınız ses tanımayı desteklemiyor. Lütfen Chrome veya Edge kullanın.');
+        sesliSoyle('Tarayıcınız ses tanımayı desteklemiyor.');
         return;
       }
 
@@ -632,10 +657,10 @@
       const voiceBtn = document.getElementById('voiceBtn');
 
       recognition.onstart = () => {
+        dinliyor = true;
         voiceBtn.classList.add('listening');
-        voiceBtn.innerHTML = '<span>🔴</span><span>Dinliyor...</span>';
-        popupGoster('listening', '🎤', 'Dinliyorum', null, 'Sokak adını söyleyin...', false);
-        sesliSoyle('Dinliyorum');
+        voiceBtn.textContent = '🔴 Dinliyor...';
+        gosterSonuc('listening', '🎤 Dinliyorum', 'Sokak adını söyleyin...');
       };
 
       recognition.onresult = (event) => {
@@ -643,182 +668,153 @@
         document.getElementById('sokakInput').value = sesliBilgi;
         
         const aranan = sesliBilgi.toLowerCase().trim();
-        const sokakBilgi = sokaklar[aranan];
+        const mahalle = sokaklar[aranan];
 
-        if (sokakBilgi) {
-          popupGoster('success', '✅', 'Bulundu!', sokakBilgi.sokakAdi, sokakBilgi.ekranYazisi);
-          sesliSoyle(sokakBilgi.sesliYanit);
+        if (mahalle) {
+          gosterSonuc('success', '✅ Bulundu!', 
+            `<div class="sokak-name">${sesliBilgi}</div><div class="mahalle-name">${mahalle}</div>`);
+          sesliSoyle(sorumluGetir(mahalle));
         } else {
-          popupGoster('warning', '⚠️', 'Bulunamadı', null, 'Bu sokak veritabanında bulunamadı.');
+          gosterSonuc('warning', '⚠️ Bulunamadı', 'Bu sokak veritabanında bulunamadı.');
           sesliSoyle('Bulunamadı');
         }
       };
 
       recognition.onerror = () => {
-        popupGoster('error', '❌', 'Hata', null, 'Ses tanıma hatası.');
-        sesliSoyle('Ses tanıma hatası');
+        gosterSonuc('error', '❌ Hata', 'Ses tanıma hatası. Lütfen tekrar deneyin.');
+        sesliSoyle('Ses tanıma hatası. Lütfen tekrar deneyin.');
       };
 
       recognition.onend = () => {
+        dinliyor = false;
         voiceBtn.classList.remove('listening');
-        voiceBtn.innerHTML = '<span>🎤</span><span>Sesli</span>';
+        voiceBtn.textContent = '🎤';
       };
 
       recognition.start();
     }
 
-    async function kameraAc() {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'environment' }
-        });
-        
-        const video = document.getElementById('cameraVideo');
-        video.srcObject = stream;
-        
-        document.getElementById('cameraModal').classList.add('active');
-        document.getElementById('cameraBtn').classList.add('active');
-      } catch (err) {
-        popupGoster('error', '❌', 'Hata', null, 'Kameraya erişilemedi.');
-        sesliSoyle('Kameraya erişilemedi');
-      }
+    // Temizle
+    function temizle() {
+      document.getElementById('sokakInput').value = '';
+      document.getElementById('result').classList.add('hidden');
     }
 
-    function kameraKapat() {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
-      }
-      
-      document.getElementById('cameraModal').classList.remove('active');
-      document.getElementById('cameraBtn').classList.remove('active');
-      scanning = false;
-      document.getElementById('btnScan').classList.remove('scanning');
-      document.getElementById('btnScan').textContent = '📸 Tara';
+    // Sonuç göster
+    function gosterSonuc(tip, baslik, mesaj) {
+      const resultDiv = document.getElementById('result');
+      const tipClass = `result-${tip}`;
+      const titleClass = `${tip}-title`;
+
+      resultDiv.innerHTML = `
+        <div class="result-box ${tipClass}">
+          <div class="result-title ${titleClass}">${baslik}</div>
+          <div>${mesaj}</div>
+        </div>
+      `;
+      resultDiv.classList.remove('hidden');
     }
 
-    function taramaYap() {
-      if (scanning) return;
+    // Mahalleleri grupla
+    function mahalleSokakMap() {
+      const map = {};
+      Object.entries(sokaklar).forEach(([sokak, mahalle]) => {
+        if (!map[mahalle]) map[mahalle] = [];
+        map[mahalle].push(sokak);
+      });
+      return map;
+    }
+
+    // Mahalle grupları
+    const mahalleGruplari = [
+      {
+        renk: 'gri',
+        mahalleler: ['Acısu 1', 'Acısu 2', 'Arslanbey 1', 'Arslanbey 2', 'Balaban', 'Derbent', 'Maşukiye', 'Rahmiye', 'Suadiye', 'Çepni', 'Şevkatiye', 'Şirinsulhiye']
+      },
+      {
+        renk: 'yesil',
+        mahalleler: ['Ataevler 1', 'Ataevler 2', 'Ataevler 3', 'Emekevler 1', 'Emekevler 2', 'Uzunçiftlik']
+      },
+      {
+        renk: 'kirmizi',
+        mahalleler: ['Dumlupınar 1', 'Dumlupınar 2', 'Ertuğrul Gazi', 'Eşme', 'İbrikdere', 'Uzuntarla']
+      },
+      {
+        renk: 'mavi',
+        mahalleler: ['FSM 1', 'FSM 2', 'FSM 3', 'Köseköy 1', 'Sarımeşe 1', 'Sarımeşe 2', 'İstasyon 1']
+      },
+      {
+        renk: 'sari',
+        mahalleler: ['Karabaş 1', 'Karabaş 2', 'Tepecik', 'Ömerağa 1']
+      },
+      {
+        renk: 'beyaz',
+        mahalleler: ['Körfez 1', 'Körfez 2', 'Karabaş 3']
+      }
+    ];
+
+    // Mahalle butonlarını gruplu oluştur
+    function mahalleButonlariOlustur() {
+      const map = mahalleSokakMap();
+      const container = document.getElementById('mahalleButtons');
       
-      scanning = true;
-      const btnScan = document.getElementById('btnScan');
-      btnScan.classList.add('scanning');
-      btnScan.textContent = '⏳ Taranıyor...';
-      
-      const video = document.getElementById('cameraVideo');
-      const canvas = document.getElementById('canvas');
-      const context = canvas.getContext('2d');
-      
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0);
-      
-      canvas.toBlob((blob) => {
-        Tesseract.recognize(blob, 'tur')
-        .then(({ data: { text } }) => {
-          const temizMetin = text.toLowerCase().replace(/[^\wşğüöçıİ\s]/g, '').trim();
-          
-          console.log('Okunan metin:', temizMetin);
-          
-          let bulundu = false;
-          for (const [anahtar, bilgi] of Object.entries(sokaklar)) {
-            if (temizMetin.includes(anahtar) || anahtar.includes(temizMetin)) {
-              document.getElementById('sokakInput').value = anahtar;
-              kameraKapat();
-              popupGoster('success', '✅', 'Bulundu!', bilgi.sokakAdi, bilgi.ekranYazisi);
-              sesliSoyle(bilgi.sesliYanit);
-              bulundu = true;
-              break;
-            }
-          }
-          
-          if (!bulundu) {
-            popupGoster('warning', '⚠️', 'Bulunamadı', null, 'Sokak tanınamadı. Tekrar deneyin.');
-            sesliSoyle('Sokak tanınamadı');
-          }
-          
-          scanning = false;
-          btnScan.classList.remove('scanning');
-          btnScan.textContent = '📸 Tara';
-        })
-        .catch(() => {
-          popupGoster('error', '❌', 'Hata', null, 'Tarama başarısız.');
-          sesliSoyle('Tarama başarısız');
-          scanning = false;
-          btnScan.classList.remove('scanning');
-          btnScan.textContent = '📸 Tara';
+      mahalleGruplari.forEach((grup, idx) => {
+        if (idx > 0) {
+          const sep = document.createElement('div');
+          sep.className = 'grup-ayirici';
+          container.appendChild(sep);
+        }
+        grup.mahalleler.forEach(mahalle => {
+          if (!map[mahalle]) return;
+          const btn = document.createElement('button');
+          btn.className = 'btn-mahalle btn-mahalle-' + grup.renk;
+          btn.textContent = mahalle;
+          btn.onclick = () => mahalleAc(mahalle, btn);
+          container.appendChild(btn);
         });
       });
     }
 
-    function temizle() {
-      document.getElementById('sokakInput').value = '';
-      popupKapat();
+    // Mahalle detayını modal olarak aç
+    function mahalleAc(mahalle, btnEl) {
+      document.querySelectorAll('.btn-mahalle').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+
+      const map = mahalleSokakMap();
+      const sokakListesi = map[mahalle] || [];
+
+      const sorumlu = mahalleSorumlulari[mahalle];
+      const baslik = sorumlu ? mahalle + ' - ' + sorumlu : mahalle;
+      document.getElementById('modalBaslik').textContent = '📍 ' + baslik;
+      const body = document.getElementById('modalBody');
+      body.innerHTML = '';
+      sokakListesi.forEach(sokak => {
+        const div = document.createElement('div');
+        div.className = 'modal-sokak-item';
+        div.textContent = sokak;
+        body.appendChild(div);
+      });
+
+      document.getElementById('modalOverlay').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
     }
 
-    function popupGoster(tip, emoji, baslik, sokak, mesaj, autoClose = true) {
-      const overlay = document.getElementById('popupOverlay');
-      const box = document.getElementById('popupBox');
-      const icon = document.getElementById('popupIcon');
-      const title = document.getElementById('popupTitle');
-      const content = document.getElementById('popupContent');
-
-      box.className = 'popup-box popup-' + tip;
-      icon.textContent = emoji;
-      title.textContent = baslik;
-
-      if (sokak !== null && sokak !== undefined) {
-        content.innerHTML = `
-          <div class="popup-sokak">${sokak}</div>
-          <div class="popup-mahalle">${mesaj}</div>
-        `;
-      } else {
-        content.innerHTML = `<div class="popup-message">${mesaj}</div>`;
-      }
-
-      overlay.classList.add('show');
-
-      if (popupTimer) clearTimeout(popupTimer);
-      
-      if (autoClose) {
-        popupTimer = setTimeout(() => {
-          popupKapat();
-        }, 5000);
-      }
+    // Modalı kapat
+    function geriDon() {
+      document.getElementById('modalOverlay').classList.add('hidden');
+      document.body.style.overflow = '';
+      document.querySelectorAll('.btn-mahalle').forEach(b => b.classList.remove('active'));
     }
 
-    function popupKapat() {
-      document.getElementById('popupOverlay').classList.remove('show');
-      if (popupTimer) clearTimeout(popupTimer);
-    }
-
-    function sokakListesiOlustur() {
-      const liste = document.getElementById('sokakListesi');
-      liste.innerHTML = '';
-      
-      for (const [anahtar, bilgi] of Object.entries(sokaklar)) {
-        const item = document.createElement('div');
-        item.className = 'list-item';
-        item.innerHTML = `
-          <div class="list-sokak">${bilgi.sokakAdi}</div>
-          <div class="list-mahalle">${bilgi.ekranYazisi}</div>
-        `;
-        item.onclick = () => {
-          document.getElementById('sokakInput').value = anahtar;
-          ara();
-        };
-        liste.appendChild(item);
+    // Overlay dışına tıklayınca kapat
+    function modalKapat(event) {
+      if (event.target === document.getElementById('modalOverlay')) {
+        geriDon();
       }
     }
 
-    window.onload = function() {
-      sokakListesiOlustur();
-      window.speechSynthesis.getVoices();
-    };
-
-    document.getElementById('popupOverlay').onclick = function(e) {
-      if (e.target === this) popupKapat();
-    };
+    // Sayfa yüklendiğinde butonları oluştur
+    mahalleButonlariOlustur();
   </script>
 </body>
 </html>
