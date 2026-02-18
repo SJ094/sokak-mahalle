@@ -252,8 +252,8 @@
     .btn-mahalle-gri { border-color: #9CA3AF; color: #4B5563; }
     .btn-mahalle-gri:hover, .btn-mahalle-gri.active { background: #9CA3AF; border-color: #9CA3AF; color: white; }
 
-    .btn-mahalle-yesil { border-color: #22C55E; color: #16A34A; }
-    .btn-mahalle-yesil:hover, .btn-mahalle-yesil.active { background: #22C55E; border-color: #22C55E; color: white; }
+    .btn-mahalle-yesil { border-color: #15803D; color: #14532D; }
+    .btn-mahalle-yesil:hover, .btn-mahalle-yesil.active { background: #15803D; border-color: #15803D; color: white; }
 
     .btn-mahalle-kirmizi { border-color: #EF4444; color: #DC2626; }
     .btn-mahalle-kirmizi:hover, .btn-mahalle-kirmizi.active { background: #EF4444; border-color: #EF4444; color: white; }
@@ -470,14 +470,14 @@
     .btn-grup:hover { opacity: 0.8; transform: scale(1.1); }
 
     .btn-grup-gri   { border-color: #9CA3AF; color: #4B5563; background: white; }
-    .btn-grup-yesil { border-color: #22C55E; color: #16A34A; background: white; }
+    .btn-grup-yesil { border-color: #15803D; color: #14532D; background: white; }
     .btn-grup-kirmizi { border-color: #EF4444; color: #DC2626; background: white; }
     .btn-grup-mavi  { border-color: #3B82F6; color: #2563EB; background: white; }
     .btn-grup-sari  { border-color: #EAB308; color: #A16207; background: white; }
     .btn-grup-beyaz { border-color: #D1D5DB; color: #374151; background: white; }
 
     .btn-grup-gri:hover   { background: #9CA3AF; color: white; }
-    .btn-grup-yesil:hover { background: #22C55E; color: white; }
+    .btn-grup-yesil:hover { background: #15803D; color: white; }
     .btn-grup-kirmizi:hover { background: #EF4444; color: white; }
     .btn-grup-mavi:hover  { background: #3B82F6; color: white; }
     .btn-grup-sari:hover  { background: #EAB308; color: white; }
@@ -672,11 +672,37 @@
         return;
       }
 
-      const mahalle = sokaklar[aranan];
+      // Önce tam eşleşme dene
+      let mahalle = sokaklar[aranan];
+      let bulunanSokak = aranan;
+
+      // Tam eşleşme yoksa "sokak" ve "caddesi" ekleyerek dene
+      if (!mahalle) {
+        const denemeler = [aranan + ' sokak', aranan + ' caddesi'];
+        for (const deneme of denemeler) {
+          if (sokaklar[deneme]) {
+            mahalle = sokaklar[deneme];
+            bulunanSokak = deneme;
+            break;
+          }
+        }
+      }
+
+      // Hala bulunamadıysa kısmi eşleşme dene
+      if (!mahalle) {
+        for (const [sokak, mah] of Object.entries(sokaklar)) {
+          if (sokak.startsWith(aranan)) {
+            mahalle = mah;
+            bulunanSokak = sokak;
+            break;
+          }
+        }
+      }
 
       if (mahalle) {
+        const gosterilen = bulunanSokak.charAt(0).toUpperCase() + bulunanSokak.slice(1);
         gosterSonuc('success', '✅ Bulundu!', 
-          `<div class="sokak-name">${input}</div><div class="mahalle-name">${mahalle}</div>`);
+          `<div class="sokak-name">${gosterilen}</div><div class="mahalle-name">${mahalle}</div>`);
         sesliSoyle(sorumluGetir(mahalle));
       } else {
         gosterSonuc('warning', '⚠️ Bulunamadı', 'Bu sokak veritabanında bulunamadı.');
